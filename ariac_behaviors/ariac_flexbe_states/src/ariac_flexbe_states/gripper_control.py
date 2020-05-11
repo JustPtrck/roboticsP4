@@ -10,13 +10,13 @@ class GripperControl(EventState):
 	Example for a state to demonstrate which functionality is available for state implementation.
 	This example lets the behavior wait until the given target_time has passed since the behavior has been started.
 
-	-- enable 		bool 		Enables the vacuum.
+	-- enable 	bool 		Enables the vacuum.
 
-	#> arm_id		string		Arm identifier.
+	#> arm_id	string		Arm identifier.
 
-	<= continue 				Succesful action.
-	<= failed 				Failed.
-	<= invalid_id				arm_id Invalid.
+	<= continue 			Succesful action.
+	<= failed 			Failed.
+	<= invalid_id			arm_id Invalid.
 
 	'''
 
