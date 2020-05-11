@@ -2,7 +2,7 @@
 import rospy
 
 from flexbe_core import EventState, Logger
-from osrf_gear.srv import VacuumGripperControl. VacuumGripperControlRequest, VacuumGripperControlResponse
+from osrf_gear.srv import VacuumGripperControl, VacuumGripperControlRequest, VacuumGripperControlResponse
 
 
 class GripperControl(EventState):
@@ -36,11 +36,10 @@ class GripperControl(EventState):
 
 		if userdata.arm_id == 'arm1':
 			gripper_service = '/ariac/arm1/gripper/control'
-		else
-			if userdata.arm_id == 'arm2':
-				gripper_service = '/ariac/arm2/gripper/control'
-			else
-				return 'invalid_id'
+		elif userdata.arm_id == 'arm2':
+			gripper_service = '/ariac/arm2/gripper/control'
+		else:
+			return 'invalid_id'
  
 		
 		
@@ -57,7 +56,7 @@ class GripperControl(EventState):
 
 			if service_response.succes == True:
 				return 'continue'
-			else
+			else:
 				return 'failed'
 		except rospy.ServiceExeption, e:
 			rospy.loginfo("Service call failed: %s"%e)

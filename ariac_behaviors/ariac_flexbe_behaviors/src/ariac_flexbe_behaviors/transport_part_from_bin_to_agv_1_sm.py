@@ -12,6 +12,9 @@ from ariac_flexbe_states.start_assignment_state import StartAssignment
 from ariac_flexbe_states.end_assignment_state import EndAssignment
 from ariac_flexbe_behaviors.transport_part_form_bin_to_agv_state_sm import transport_part_form_bin_to_agv_stateSM
 from ariac_flexbe_states.srdf_state_to_moveit_ariac_state import SrdfStateToMoveitAriac
+from ariac_flexbe_states.compute_grasp_ariac_state import ComputeGraspAriacState
+from ariac_flexbe_states.gripper_control import GripperControl
+from ariac_flexbe_states.detect_part_camera_ariac_state import DetectPartCameraAriacState
 # Additional imports can be added inside the following tags
 # [MANUAL_IMPORT]
 
@@ -47,7 +50,7 @@ class transport_part_from_bin_to_agv_1SM(Behavior):
 
 
 	def create(self):
-		# x:1198 y:186, x:517 y:426
+		# x:1231 y:623, x:517 y:426
 		_state_machine = OperatableStateMachine(outcomes=['finished', 'failed'])
 		_state_machine.userdata.agv_id = 'agv1'
 		_state_machine.userdata.part_type = 'gear_part'
@@ -61,6 +64,14 @@ class transport_part_from_bin_to_agv_1SM(Behavior):
 		_state_machine.userdata.joint_names = []
 		_state_machine.userdata.config_name_bin5PreGrasp = 'bin5PreGrasp'
 		_state_machine.userdata.config_name_tray2PreDrop = 'tray2PreDrop'
+		_state_machine.userdata.pose = []
+		_state_machine.userdata.part_offset = 0.040
+		_state_machine.userdata.part_rotation = 0
+		_state_machine.userdata.tool_link = 'ee_link'
+		_state_machine.userdata.arm_id = 'arm1'
+		_state_machine.userdata.camera_topic = '/ariac/logical_camera_bin5'
+		_state_machine.userdata.camera_frame = 'logical_camera_bin5_frame'
+		_state_machine.userdata.camera_ref_frame = 'arm1_lineair_arm_actuator'
 
 		# Additional creation code can be added inside the following tags
 		# [MANUAL_CREATE]
@@ -75,13 +86,13 @@ class transport_part_from_bin_to_agv_1SM(Behavior):
 										transitions={'continue': 'MoveR1Home'},
 										autonomy={'continue': Autonomy.Off})
 
-			# x:1081 y:69
+			# x:1126 y:519
 			OperatableStateMachine.add('EndAssignment',
 										EndAssignment(),
 										transitions={'continue': 'finished'},
 										autonomy={'continue': Autonomy.Off})
 
-			# x:792 y:45
+			# x:945 y:428
 			OperatableStateMachine.add('transport_part_form_bin_to_agv_state',
 										self.use_behavior(transport_part_form_bin_to_agv_stateSM, 'transport_part_form_bin_to_agv_state'),
 										transitions={'finished': 'EndAssignment', 'failed': 'failed'},
@@ -95,19 +106,40 @@ class transport_part_from_bin_to_agv_1SM(Behavior):
 										autonomy={'reached': Autonomy.Off, 'planning_failed': Autonomy.Off, 'control_failed': Autonomy.Off, 'param_error': Autonomy.Off},
 										remapping={'config_name': 'config_name_home', 'move_group': 'move_group', 'move_group_prefix': 'move_group_prefix', 'action_topic': 'action_topic', 'robot_name': 'robot_name', 'config_name_out': 'config_name_out', 'move_group_out': 'move_group_out', 'robot_name_out': 'robot_name_out', 'action_topic_out': 'action_topic_out', 'joint_values': 'joint_values', 'joint_names': 'joint_names'})
 
-			# x:397 y:33
+			# x:425 y:27
 			OperatableStateMachine.add('MoveBin5PreGrasp',
 										SrdfStateToMoveitAriac(),
-										transitions={'reached': 'MoveTray2PreDrop', 'planning_failed': 'failed', 'control_failed': 'failed', 'param_error': 'failed'},
+										transitions={'reached': 'DetectPartPose', 'planning_failed': 'failed', 'control_failed': 'failed', 'param_error': 'failed'},
 										autonomy={'reached': Autonomy.Off, 'planning_failed': Autonomy.Off, 'control_failed': Autonomy.Off, 'param_error': Autonomy.Off},
 										remapping={'config_name': 'config_name_bin5PreGrasp', 'move_group': 'move_group', 'move_group_prefix': 'move_group_prefix', 'action_topic': 'action_topic', 'robot_name': 'robot_name', 'config_name_out': 'config_name_out', 'move_group_out': 'move_group_out', 'robot_name_out': 'robot_name_out', 'action_topic_out': 'action_topic_out', 'joint_values': 'joint_values', 'joint_names': 'joint_names'})
 
-			# x:588 y:35
+			# x:899 y:265
 			OperatableStateMachine.add('MoveTray2PreDrop',
 										SrdfStateToMoveitAriac(),
 										transitions={'reached': 'transport_part_form_bin_to_agv_state', 'planning_failed': 'failed', 'control_failed': 'failed', 'param_error': 'failed'},
 										autonomy={'reached': Autonomy.Off, 'planning_failed': Autonomy.Off, 'control_failed': Autonomy.Off, 'param_error': Autonomy.Off},
 										remapping={'config_name': 'config_name_tray2PreDrop', 'move_group': 'move_group', 'move_group_prefix': 'move_group_prefix', 'action_topic': 'action_topic', 'robot_name': 'robot_name', 'config_name_out': 'config_name_out', 'move_group_out': 'move_group_out', 'robot_name_out': 'robot_name_out', 'action_topic_out': 'action_topic_out', 'joint_values': 'joint_values', 'joint_names': 'joint_names'})
+
+			# x:755 y:107
+			OperatableStateMachine.add('ComputeGraspRobot1',
+										ComputeGraspAriacState(joint_names=['lineair_arm_actuator_joint', 'shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint', 'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint']),
+										transitions={'continue': 'GripperEnabled', 'failed': 'failed'},
+										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
+										remapping={'move_group': 'move_group', 'move_group_prefix': 'move_group_prefix', 'tool_link': 'tool_link', 'pose': 'pose', 'offset': 'part_offset', 'rotation': 'part_rotation', 'joint_values': 'joint_values', 'joint_names': 'joint_names'})
+
+			# x:864 y:183
+			OperatableStateMachine.add('GripperEnabled',
+										GripperControl(enable=True),
+										transitions={'continue': 'MoveTray2PreDrop', 'failed': 'failed', 'invalid_id': 'failed'},
+										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off, 'invalid_id': Autonomy.Off},
+										remapping={'arm_id': 'arm_id'})
+
+			# x:592 y:15
+			OperatableStateMachine.add('DetectPartPose',
+										DetectPartCameraAriacState(time_out=0.5),
+										transitions={'continue': 'ComputeGraspRobot1', 'failed': 'failed', 'not_found': 'failed'},
+										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off, 'not_found': Autonomy.Off},
+										remapping={'ref_frame': 'camera_ref_frame', 'camera_topic': 'camera_topic', 'camera_frame': 'camera_frame', 'part': 'part_type', 'pose': 'pose'})
 
 
 		return _state_machine
