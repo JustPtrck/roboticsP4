@@ -24,6 +24,9 @@ class FindPart(EventState):
 	># agv_id	string	agv for shipment
 
 	#> bin		string	part location bin
+	#> camera_topic	string	set camera
+	#> camera_frame	string	set camera frame
+	#> ref_frame	string	set ref
 
 	<= in_range 			Part in range
 	<= out_of_range			Part out of range
@@ -34,7 +37,7 @@ class FindPart(EventState):
 
 	def __init__(self, time_out = 0.5):
 		# Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
-		super(FindPart, self).__init__(input_keys = ['part_type', 'agv_id'], outcomes = ['in_range', 'out_of_range', 'failed', 'not_found'], output_keys = ['bin'])
+		super(FindPart, self).__init__(input_keys = ['part_type', 'agv_id'], outcomes = ['in_range', 'out_of_range', 'failed', 'not_found'], output_keys = ['bin','camera_topic','camera_frame','ref_frame'])
 
 		# Store state parameter for later use.
 		self._wait = time_out
@@ -64,10 +67,15 @@ class FindPart(EventState):
 						message = self._sub.get_last_msg(self._topic)
 						for model in message.models:
 							if model.type == userdata.part_type:
-								if i > 3:
-									return 'out_of_range'
 								userdata.bin = "bin"+str(i)+"PreGrasp"
+								userdata.camera_topic = "/ariac/logical_camera_bin"+str(i)
+								userdata.camera_frame = "logical_camera_bin"+str(i)+"_frame"
 								Logger.loginfo("bin"+str(i)+"PreGrasp")
+								if i > 3:
+									userdata.ref_frame = "arm1_linear_arm_actuator"
+									Logger.loginfo("Part out of range")
+									return 'out_of_range'
+								userdata.ref_frame = "arm2_linear_arm_actuator"
 								return 'in_range'
 			Logger.loginfo("part_type not found")
 		   	return 'not_found'
@@ -89,10 +97,15 @@ class FindPart(EventState):
 						message = self._sub.get_last_msg(self._topic)
 						for model in message.models:
 							if model.type == userdata.part_type:
-								if i < 4:
-									return 'out_of_range'
 								userdata.bin = "bin"+str(i)+"PreGrasp"
+								userdata.camera_topic = "/ariac/logical_camera_bin"+str(i)
+								userdata.camera_frame = "logical_camera_bin"+str(i)+"_frame"
 								Logger.loginfo("bin"+str(i)+"PreGrasp")
+								if i < 4:
+									userdata.ref_frame = "arm2_linear_arm_actuator"
+									Logger.loginfo("Part out of range")
+									return 'out_of_range'
+								userdata.ref_frame = "arm1_linear_arm_actuator"
 								return 'in_range'
 			Logger.loginfo("part_type not found")
 		   	return 'not_found'
