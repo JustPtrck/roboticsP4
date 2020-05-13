@@ -24,8 +24,9 @@ class FindPart(EventState):
 	># agv_id	string	agv for shipment
 
 	#> bin		string	part location bin
-	#> action	string	df
-	<= continue 			Given time has passed.
+
+	<= in_range 			Part in range
+	<= out_of_range			Part out of range
 	<= failed 				Example for a failure outcome.
 	<= not_found				a
 
@@ -33,7 +34,7 @@ class FindPart(EventState):
 
 	def __init__(self, time_out = 0.5):
 		# Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
-		super(FindPart, self).__init__(input_keys = ['part_type', 'agv_id'], outcomes = ['continue', 'failed', 'not_found'], output_keys = ['bin', 'action'])
+		super(FindPart, self).__init__(input_keys = ['part_type', 'agv_id'], outcomes = ['in_range', 'out_of_range', 'failed', 'not_found'], output_keys = ['bin'])
 
 		# Store state parameter for later use.
 		self._wait = time_out
@@ -64,10 +65,10 @@ class FindPart(EventState):
 						for model in message.models:
 							if model.type == userdata.part_type:
 								if i > 3:
-									userdata.action = "arm1"
+									return 'out_of_range'
 								userdata.bin = "bin"+str(i)+"PreGrasp"
 								Logger.loginfo("bin"+str(i)+"PreGrasp")
-								return 'continue'
+								return 'in_range'
 			Logger.loginfo("part_type not found")
 		   	return 'not_found'
 		if userdata.agv_id == "agv1":
@@ -89,10 +90,10 @@ class FindPart(EventState):
 						for model in message.models:
 							if model.type == userdata.part_type:
 								if i < 4:
-									userdata.action = "arm1"
+									return 'out_of_range'
 								userdata.bin = "bin"+str(i)+"PreGrasp"
 								Logger.loginfo("bin"+str(i)+"PreGrasp")
-								return 'continue'
+								return 'in_range'
 			Logger.loginfo("part_type not found")
 		   	return 'not_found'
 
