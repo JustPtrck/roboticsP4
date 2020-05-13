@@ -66,7 +66,7 @@ class transport_part_from_bin_to_agv_1SM(Behavior):
 		_state_machine.userdata.config_name_bin5PreGrasp = 'bin5PreGrasp'
 		_state_machine.userdata.config_name_tray2PreDrop = 'tray2PreDrop'
 		_state_machine.userdata.pose = []
-		_state_machine.userdata.part_offset = 0.001
+		_state_machine.userdata.part_offset = 0.080
 		_state_machine.userdata.part_rotation = 0
 		_state_machine.userdata.tool_link = 'ee_link'
 		_state_machine.userdata.arm_id = 'arm1'
@@ -111,7 +111,7 @@ class transport_part_from_bin_to_agv_1SM(Behavior):
 			# x:657 y:31
 			OperatableStateMachine.add('MoveBin5PreGrasp',
 										SrdfStateToMoveitAriac(),
-										transitions={'reached': 'ComputeGraspRobot1', 'planning_failed': 'failed', 'control_failed': 'failed', 'param_error': 'failed'},
+										transitions={'reached': 'ComputeGraspRobot1', 'planning_failed': 'failed', 'control_failed': 'ComputeGraspRobot1', 'param_error': 'failed'},
 										autonomy={'reached': Autonomy.Off, 'planning_failed': Autonomy.Off, 'control_failed': Autonomy.Off, 'param_error': Autonomy.Off},
 										remapping={'config_name': 'config_name_bin5PreGrasp', 'move_group': 'move_group', 'move_group_prefix': 'move_group_prefix', 'action_topic': 'action_topic', 'robot_name': 'robot_name', 'config_name_out': 'config_name_out', 'move_group_out': 'move_group_out', 'robot_name_out': 'robot_name_out', 'action_topic_out': 'action_topic_out', 'joint_values': 'joint_values', 'joint_names': 'joint_names'})
 
@@ -146,7 +146,7 @@ class transport_part_from_bin_to_agv_1SM(Behavior):
 			# x:924 y:141
 			OperatableStateMachine.add('MoveR1Bin5Pick',
 										MoveitToJointsDynAriacState(),
-										transitions={'reached': 'GripperEnabled', 'planning_failed': 'failed', 'control_failed': 'failed'},
+										transitions={'reached': 'GripperEnabled', 'planning_failed': 'failed', 'control_failed': 'GripperEnabled'},
 										autonomy={'reached': Autonomy.Off, 'planning_failed': Autonomy.Off, 'control_failed': Autonomy.Off},
 										remapping={'move_group_prefix': 'move_group_prefix', 'move_group': 'move_group', 'action_topic': 'action_topic', 'joint_values': 'joint_values', 'joint_names': 'joint_names'})
 

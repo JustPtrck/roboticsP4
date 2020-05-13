@@ -40,9 +40,9 @@ class GripperControl(EventState):
 			gripper_service = '/ariac/arm2/gripper/control'
 		else:
 			return 'invalid_id'
- 
-		
-		
+
+
+
 
 
 		rospy.loginfo("Waiting for service")
@@ -54,11 +54,11 @@ class GripperControl(EventState):
 
 			service_response = gripper_control(request)
 
-			if service_response.succes == True:
+			if service_response.success == True:
 				return 'continue'
 			else:
 				return 'failed'
-		except rospy.ServiceExeption, e:
+		except rospy.ServiceException, e:
 			rospy.loginfo("Service call failed: %s"%e)
 			return 'failed'
 
@@ -96,4 +96,3 @@ class GripperControl(EventState):
 		# Use this event to clean up things like claimed resources.
 
 		pass # Nothing to do in this example.
-		

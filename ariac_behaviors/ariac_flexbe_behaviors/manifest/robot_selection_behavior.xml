@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<behavior name="robot_selection_behavior">
+
+	<executable package_path="ariac_flexbe_behaviors.robot_selection_behavior_sm" class="robot_selection_behaviorSM" />
+	<tagstring>robotselector</tagstring>
+	<author>Wessel Koolen</author>
+	<date>Wed May 13 2020</date>
+	<description>
+		Dit behavior wordt gebruikt voor het selecteren van de juiste robotarm
+	</description>
+
+
+	<!-- Contained Behaviors -->
+
+	<!-- Available Parameters -->
+
+</behavior>

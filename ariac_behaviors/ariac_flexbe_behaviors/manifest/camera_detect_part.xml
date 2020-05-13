@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<behavior name="camera_detect_part">
+
+	<executable package_path="ariac_flexbe_behaviors.camera_detect_part_sm" class="camera_detect_partSM" />
+	<tagstring>logistics</tagstring>
+	<author>Wessel Koolen</author>
+	<date>Wed May 13 2020</date>
+	<description>
+		Behavior finding part, outputting part location
+	</description>
+
+
+	<!-- Contained Behaviors -->
+
+	<!-- Available Parameters -->
+
+</behavior>
