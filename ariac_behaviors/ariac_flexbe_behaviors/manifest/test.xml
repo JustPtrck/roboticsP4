@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<behavior name="test">
+
+	<executable package_path="ariac_flexbe_behaviors.test_sm" class="testSM" />
+	<tagstring></tagstring>
+	<author>das</author>
+	<date>Wed May 13 2020</date>
+	<description>
+		sc
+	</description>
+
+
+	<!-- Contained Behaviors -->
+	<contains name="Find Part" />
+	<contains name="transport_part_from_bin_to_agv_1" />
+
+	<!-- Available Parameters -->
+
+</behavior>
