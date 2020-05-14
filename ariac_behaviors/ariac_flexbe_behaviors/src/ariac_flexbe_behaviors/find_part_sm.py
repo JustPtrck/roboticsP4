@@ -47,8 +47,8 @@ switches arm choice when needed
 
 
 	def create(self):
-		# x:625 y:34, x:36 y:176, x:34 y:79
-		_state_machine = OperatableStateMachine(outcomes=['finished', 'failed', 'part_not_in_bin'], input_keys=['move_group_prefix', 'part_type', 'agv_id'], output_keys=['bin', 'move_group_prefix', 'camera_topic', 'camera_frame', 'ref_frame'])
+		# x:625 y:34, x:36 y:176, x:34 y:79, x:622 y:154
+		_state_machine = OperatableStateMachine(outcomes=['to_agv', 'failed', 'part_not_in_bin', 'transfer'], input_keys=['move_group_prefix', 'part_type', 'agv_id'], output_keys=['bin', 'move_group_prefix', 'camera_topic', 'camera_frame', 'ref_frame'])
 		_state_machine.userdata.part_type = []
 		_state_machine.userdata.agv_id = []
 		_state_machine.userdata.bin = ''
@@ -69,7 +69,7 @@ switches arm choice when needed
 			# x:157 y:25
 			OperatableStateMachine.add('FindPart',
 										FindPart(time_out=0.5),
-										transitions={'in_range': 'finished', 'out_of_range': 'Arm1Active?', 'failed': 'failed', 'not_found': 'part_not_in_bin'},
+										transitions={'in_range': 'to_agv', 'out_of_range': 'Arm1Active?', 'failed': 'failed', 'not_found': 'part_not_in_bin'},
 										autonomy={'in_range': Autonomy.Off, 'out_of_range': Autonomy.Off, 'failed': Autonomy.Off, 'not_found': Autonomy.Off},
 										remapping={'part_type': 'part_type', 'agv_id': 'agv_id', 'bin': 'bin', 'camera_topic': 'camera_topic', 'camera_frame': 'camera_frame', 'ref_frame': 'ref_frame'})
 
@@ -83,14 +83,14 @@ switches arm choice when needed
 			# x:342 y:108
 			OperatableStateMachine.add('SwitchArmTo1',
 										ReplaceState(),
-										transitions={'done': 'finished'},
+										transitions={'done': 'transfer'},
 										autonomy={'done': Autonomy.Off},
 										remapping={'value': 'arm1', 'result': 'move_group_prefix'})
 
 			# x:342 y:185
 			OperatableStateMachine.add('SwitchArmTo2',
 										ReplaceState(),
-										transitions={'done': 'finished'},
+										transitions={'done': 'transfer'},
 										autonomy={'done': Autonomy.Off},
 										remapping={'value': 'arm2', 'result': 'move_group_prefix'})
 
