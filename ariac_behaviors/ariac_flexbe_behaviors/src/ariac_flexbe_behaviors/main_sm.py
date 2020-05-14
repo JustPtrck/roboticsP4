@@ -8,13 +8,15 @@
 ###########################################################
 
 from flexbe_core import Behavior, Autonomy, OperatableStateMachine, ConcurrencyContainer, PriorityContainer, Logger
-from ariac_flexbe_states.choose_arm import chooseArm
+from ariac_flexbe_states.start_assignment_state import StartAssignment
 from ariac_flexbe_behaviors.find_part_sm import FindPartSM
 from ariac_flexbe_behaviors.transport_part_from_bin_to_agv_1_sm import transport_part_from_bin_to_agv_1SM
 from ariac_flexbe_behaviors.transferparts_sm import TransferPartsSM
+from ariac_flexbe_states.choose_arm import chooseArm
 from ariac_flexbe_states.srdf_state_to_moveit_ariac_state import SrdfStateToMoveitAriac
 from ariac_flexbe_behaviors.transport_part_from_bin_to_arv_2_sm import transport_part_from_bin_to_arv_2SM
 from ariac_support_flexbe_states.equal_state import EqualState
+from ariac_flexbe_states.end_assignment_state import EndAssignment
 # Additional imports can be added inside the following tags
 # [MANUAL_IMPORT]
 
@@ -23,17 +25,17 @@ from ariac_support_flexbe_states.equal_state import EqualState
 
 '''
 Created on Wed May 13 2020
-@author: das
+@author: Patrick Verwimp
 '''
-class testSM(Behavior):
+class MainSM(Behavior):
 	'''
 	sc
 	'''
 
 
 	def __init__(self):
-		super(testSM, self).__init__()
-		self.name = 'test'
+		super(MainSM, self).__init__()
+		self.name = 'Main'
 
 		# parameters of this behavior
 
@@ -66,7 +68,6 @@ class testSM(Behavior):
 		_state_machine.userdata.camera_frame = ''
 		_state_machine.userdata.ref_frame = ''
 		_state_machine.userdata.bin = ''
-		_state_machine.userdata.arm_id = 'arm1'
 		_state_machine.userdata.agv1 = 'agv1'
 
 		# Additional creation code can be added inside the following tags
@@ -76,12 +77,11 @@ class testSM(Behavior):
 
 
 		with _state_machine:
-			# x:37 y:41
-			OperatableStateMachine.add('CorrectArm_2',
-										chooseArm(),
-										transitions={'continue': 'Home', 'failed': 'failed'},
-										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
-										remapping={'agv_id': 'agv_id', 'move_group_prefix': 'move_group_prefix'})
+			# x:30 y:103
+			OperatableStateMachine.add('Start',
+										StartAssignment(),
+										transitions={'continue': 'CorrectArm_2'},
+										autonomy={'continue': Autonomy.Off})
 
 			# x:369 y:69
 			OperatableStateMachine.add('Find Part',
@@ -93,7 +93,7 @@ class testSM(Behavior):
 			# x:800 y:27
 			OperatableStateMachine.add('transport_part_from_bin_to_agv_1',
 										self.use_behavior(transport_part_from_bin_to_agv_1SM, 'transport_part_from_bin_to_agv_1'),
-										transitions={'finished': 'finished', 'failed': 'failed'},
+										transitions={'finished': 'End', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit},
 										remapping={'bin': 'bin', 'move_group_prefix': 'move_group_prefix', 'camera_topic': 'camera_topic', 'camera_frame': 'camera_frame', 'ref_frame': 'ref_frame', 'agv_id': 'agv_id', 'part_type': 'part_type'})
 
@@ -102,7 +102,7 @@ class testSM(Behavior):
 										self.use_behavior(TransferPartsSM, 'TransferParts'),
 										transitions={'finished': 'CorrectArm', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit},
-										remapping={'move_group_prefix': 'move_group_prefix', 'part_type': 'part_type', 'bin': 'bin', 'camera_topic': 'camera_topic', 'camera_frame': 'camera_frame', 'agv_id': 'agv_id', 'ref_frame': 'ref_frame', 'arm_id': 'arm_id'})
+										remapping={'move_group_prefix': 'move_group_prefix', 'part_type': 'part_type', 'bin': 'bin', 'camera_topic': 'camera_topic', 'camera_frame': 'camera_frame', 'agv_id': 'agv_id', 'ref_frame': 'ref_frame'})
 
 			# x:337 y:173
 			OperatableStateMachine.add('CorrectArm',
@@ -121,8 +121,9 @@ class testSM(Behavior):
 			# x:769 y:224
 			OperatableStateMachine.add('transport_part_from_bin_to_arv_2',
 										self.use_behavior(transport_part_from_bin_to_arv_2SM, 'transport_part_from_bin_to_arv_2'),
-										transitions={'finished': 'finished', 'failed': 'failed'},
-										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit})
+										transitions={'finished': 'End', 'failed': 'failed'},
+										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit},
+										remapping={'bin': 'bin', 'move_group_prefix': 'move_group_prefix', 'camera_topic': 'camera_topic', 'camera_frame': 'camera_frame', 'ref_frame': 'ref_frame', 'agv_id': 'agv_id', 'part_type': 'part_type'})
 
 			# x:549 y:19
 			OperatableStateMachine.add('Agv1?',
@@ -130,6 +131,19 @@ class testSM(Behavior):
 										transitions={'true': 'transport_part_from_bin_to_agv_1', 'false': 'transport_part_from_bin_to_arv_2'},
 										autonomy={'true': Autonomy.Off, 'false': Autonomy.Off},
 										remapping={'value_a': 'agv1', 'value_b': 'agv_id'})
+
+			# x:1059 y:360
+			OperatableStateMachine.add('End',
+										EndAssignment(),
+										transitions={'continue': 'finished'},
+										autonomy={'continue': Autonomy.Off})
+
+			# x:37 y:41
+			OperatableStateMachine.add('CorrectArm_2',
+										chooseArm(),
+										transitions={'continue': 'Home', 'failed': 'failed'},
+										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
+										remapping={'agv_id': 'agv_id', 'move_group_prefix': 'move_group_prefix'})
 
 
 		return _state_machine

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<behavior name="TransferParts">
+
+	<executable package_path="ariac_flexbe_behaviors.transferparts_sm" class="TransferPartsSM" />
+	<tagstring></tagstring>
+	<author>Patrick Verwimp</author>
+	<date>Thu May 14 2020</date>
+	<description>
+		Moves parts to transferbin
+	</description>
+
+
+	<!-- Contained Behaviors -->
+
+	<!-- Available Parameters -->
+
+</behavior>

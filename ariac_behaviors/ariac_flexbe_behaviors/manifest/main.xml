@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<behavior name="test">
+<behavior name="Main">
 
-	<executable package_path="ariac_flexbe_behaviors.test_sm" class="testSM" />
+	<executable package_path="ariac_flexbe_behaviors.main_sm" class="MainSM" />
 	<tagstring></tagstring>
-	<author>das</author>
+	<author>Patrick Verwimp</author>
 	<date>Wed May 13 2020</date>
 	<description>
 		sc
