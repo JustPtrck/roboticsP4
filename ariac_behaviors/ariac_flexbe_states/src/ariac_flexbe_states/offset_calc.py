@@ -38,7 +38,7 @@ class part_offsetCalc(EventState):
 			userdata.part_offset = 0.02
 			return 'succes'
 		elif self._part == 'piston_rod_part':
-			userdata.part_offset = 0.02
+			userdata.part_offset = 0.015
 			return 'succes'
 		elif self._part == 'pulley_part':
 			userdata.part_offset = 0.08

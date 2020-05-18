@@ -1,8 +1,11 @@
 #!/usr/bin/env python
 import rospy
+import rostopic
 
 from flexbe_core import EventState, Logger
 from osrf_gear.srv import VacuumGripperControl, VacuumGripperControlRequest, VacuumGripperControlResponse
+from osrf_gear.msg import VacuumGripperState
+from std_msgs.msg import String
 
 
 class GripperControl(EventState):
@@ -29,15 +32,18 @@ class GripperControl(EventState):
 		self._enable = enable
 		# The constructor is called when building the state machine, not when actually starting the behavior.
 		# Thus, we cannot save the starting time now and will do so later.
-		pass # Nothing to do in this example.
+	
+	
 
 	def execute(self, userdata):
 
 
 		if userdata.arm_id == 'arm1':
 			gripper_service = '/ariac/arm1/gripper/control'
+			
 		elif userdata.arm_id == 'arm2':
 			gripper_service = '/ariac/arm2/gripper/control'
+
 		else:
 			return 'invalid_id'
 
@@ -55,9 +61,22 @@ class GripperControl(EventState):
 			service_response = gripper_control(request)
 
 			if service_response.success == True:
-				return 'continue'
+				if self._enable == True:
+					if userdata.arm_id == 'arm1':
+						status = rospy.wait_for_message('/ariac/arm1/gripper/state', VacuumGripperState)
+						if status.attached == True:
+							return 'continue'
+					elif userdata.arm_id == 'arm2':
+						status = rospy.wait_for_message('/ariac/arm2/gripper/state', VacuumGripperState)
+						if status.attached == True:
+							return 'continue'
+					else:
+						return 'failed'
+				else:
+					return 'continue'
 			else:
 				return 'failed'
+
 		except rospy.ServiceException, e:
 			rospy.loginfo("Service call failed: %s"%e)
 			return 'failed'
