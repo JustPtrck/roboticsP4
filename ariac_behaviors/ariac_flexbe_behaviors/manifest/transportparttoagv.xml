@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<behavior name="Main">
+<behavior name="TransportPartToAgv">
 
-	<executable package_path="ariac_flexbe_behaviors.main_sm" class="MainSM" />
+	<executable package_path="ariac_flexbe_behaviors.transportparttoagv_sm" class="TransportPartToAgvSM" />
 	<tagstring></tagstring>
 	<author>Patrick Verwimp</author>
 	<date>Wed May 13 2020</date>
 	<description>
-		sc
+		Transports part from bin to AGV
 	</description>
 
 
 	<!-- Contained Behaviors -->
 	<contains name="transport_part_from_bin_to_agv_1" />
 	<contains name="TransferParts" />
-	<contains name="transport_part_from_bin_to_arv_2" />
 	<contains name="Find Part" />
+	<contains name="transport_part_from_bin_to_agv_2" />
 
 	<!-- Available Parameters -->
 

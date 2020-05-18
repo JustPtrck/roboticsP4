@@ -97,9 +97,9 @@ class ariac_exampleSM(Behavior):
 
 			# x:746 y:427
 			OperatableStateMachine.add('GetAgvPose',
-										GetObjectPoseState(object_frame='kit_tray_1', ref_frame='arm1_linear_arm_actuator', time_out=5.0),
-										transitions={'continue': 'ComuteDorp', 'time_out': 'failed', 'failed': 'ComuteDorp'},
-										autonomy={'continue': Autonomy.Off, 'time_out': Autonomy.Off, 'failed': Autonomy.Off},
+										GetObjectPoseState(object_frame='kit_tray_1', ref_frame='arm1_linear_arm_actuator'),
+										transitions={'continue': 'ComuteDorp', 'failed': 'ComuteDorp'},
+										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'pose': 'agv_pose'})
 
 			# x:373 y:13
