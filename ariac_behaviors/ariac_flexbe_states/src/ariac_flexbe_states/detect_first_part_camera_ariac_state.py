@@ -68,6 +68,7 @@ class DetectFirstPartCameraAriacState(EventState):
 
 	<= continue 				if the pose of the part has been succesfully obtained
 	<= failed 				otherwise
+	<= not_found				Timeout
 
 	'''
 
@@ -100,7 +101,7 @@ class DetectFirstPartCameraAriacState(EventState):
 
 		elapsed = rospy.get_rostime() - self._start_time;
 		if (elapsed.to_sec() > self._wait):
-			return 'time_out'
+			return 'not_found'
 		if self._sub.has_msg(self._topic):
 			message = self._sub.get_last_msg(self._topic)
 			for model in message.models:

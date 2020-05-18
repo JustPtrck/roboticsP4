@@ -46,6 +46,9 @@ class part_offsetCalc(EventState):
 		elif self._part == 'gasket_part':
 			userdata.part_offset = 0.03
 			return 'succes'
+		elif self._part == 'disk_part':
+			userdata.part_offset = 0.05
+			return 'succes'
 		else:
 			return 'unknown_id'
 
