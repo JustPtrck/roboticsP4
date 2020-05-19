@@ -47,10 +47,6 @@ class GripperControl(EventState):
 		else:
 			return 'invalid_id'
 
-
-
-
-
 		rospy.loginfo("Waiting for service")
 		rospy.wait_for_service(gripper_service)
 		try:

@@ -15,6 +15,7 @@ from ariac_flexbe_states.gripper_control import GripperControl
 from ariac_flexbe_states.detect_part_camera_ariac_state import DetectPartCameraAriacState
 from ariac_flexbe_states.moveit_to_joints_dyn_ariac_state import MoveitToJointsDynAriacState
 from ariac_flexbe_states.get_object_pose import GetObjectPoseState
+from ariac_flexbe_states.ComputeDropPartOffsetGraspAriacState import ComputeDropPartOffsetGraspAriacState
 # Additional imports can be added inside the following tags
 # [MANUAL_IMPORT]
 
@@ -50,7 +51,7 @@ class transport_part_from_bin_to_agv_1SM(Behavior):
 
 	def create(self):
 		# x:1241 y:669, x:521 y:384
-		_state_machine = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['bin', 'move_group_prefix', 'camera_topic', 'camera_frame', 'ref_frame', 'agv_id', 'part_type', 'pose_on_agv'])
+		_state_machine = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['bin', 'move_group_prefix', 'camera_topic', 'camera_frame', 'ref_frame', 'agv_id', 'part_type', 'part_pose'])
 		_state_machine.userdata.agv_id = []
 		_state_machine.userdata.part_type = []
 		_state_machine.userdata.config_name_home = 'home'
@@ -71,7 +72,8 @@ class transport_part_from_bin_to_agv_1SM(Behavior):
 		_state_machine.userdata.camera_frame = []
 		_state_machine.userdata.ref_frame = []
 		_state_machine.userdata.bin = []
-		_state_machine.userdata.pose_on_agv = []
+		_state_machine.userdata.part_pose = []
+		_state_machine.userdata.agv_pose = []
 
 		# Additional creation code can be added inside the following tags
 		# [MANUAL_CREATE]
@@ -153,14 +155,14 @@ class transport_part_from_bin_to_agv_1SM(Behavior):
 			# x:911 y:646
 			OperatableStateMachine.add('MoveToHome_3',
 										SrdfStateToMoveitAriac(),
-										transitions={'reached': 'finished', 'planning_failed': 'failed', 'control_failed': 'failed', 'param_error': 'failed'},
+										transitions={'reached': 'finished', 'planning_failed': 'failed', 'control_failed': 'MoveToHome_3', 'param_error': 'failed'},
 										autonomy={'reached': Autonomy.Off, 'planning_failed': Autonomy.Off, 'control_failed': Autonomy.Off, 'param_error': Autonomy.Off},
 										remapping={'config_name': 'config_name_home', 'move_group': 'move_group', 'move_group_prefix': 'move_group_prefix', 'action_topic': 'action_topic', 'robot_name': 'robot_name', 'config_name_out': 'config_name_out', 'move_group_out': 'move_group_out', 'robot_name_out': 'robot_name_out', 'action_topic_out': 'action_topic_out', 'joint_values': 'joint_values', 'joint_names': 'joint_names'})
 
 			# x:1080 y:390
 			OperatableStateMachine.add('GetAgvPose',
 										GetObjectPoseState(object_frame='kit_tray_1', ref_frame='arm1_linear_arm_actuator'),
-										transitions={'continue': 'ComuteDorp', 'failed': 'ComuteDorp'},
+										transitions={'continue': 'ComputeDrop', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'pose': 'agv_pose'})
 
@@ -171,12 +173,12 @@ class transport_part_from_bin_to_agv_1SM(Behavior):
 										autonomy={'reached': Autonomy.Off, 'planning_failed': Autonomy.Off, 'control_failed': Autonomy.Off},
 										remapping={'move_group_prefix': 'move_group_prefix', 'move_group': 'move_group', 'action_topic': 'action_topic', 'joint_values': 'joint_values', 'joint_names': 'joint_names'})
 
-			# x:1068 y:458
-			OperatableStateMachine.add('ComuteDorp',
-										ComputeGraspAriacState(joint_names=['linear_arm_actuator_joint', 'shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint', 'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint']),
+			# x:912 y:452
+			OperatableStateMachine.add('ComputeDrop',
+										ComputeDropPartOffsetGraspAriacState(joint_names=['linear_arm_actuator_joint', 'shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint', 'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint']),
 										transitions={'continue': 'MoveR1ToDrop', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
-										remapping={'move_group': 'move_group', 'move_group_prefix': 'move_group_prefix', 'tool_link': 'tool_link', 'pose': 'agv_pose', 'offset': 'part_offset', 'rotation': 'part_rotation', 'joint_values': 'joint_values', 'joint_names': 'joint_names'})
+										remapping={'move_group': 'move_group', 'move_group_prefix': 'move_group_prefix', 'tool_link': 'tool_link', 'part_pose': 'part_pose', 'pose': 'agv_pose', 'offset': 'part_offset', 'rotation': 'part_rotation', 'joint_values': 'joint_values', 'joint_names': 'joint_names'})
 
 
 		return _state_machine

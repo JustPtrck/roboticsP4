@@ -53,7 +53,7 @@ class TransportPartToAgvSM(Behavior):
 
 	def create(self):
 		# x:1045 y:65, x:489 y:361
-		_state_machine = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['agv_id', 'part_type', 'pose_on_agv'])
+		_state_machine = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['agv_id', 'part_type', 'part_pose'])
 		_state_machine.userdata.config_name_home = 'home'
 		_state_machine.userdata.move_group = 'manipulator'
 		_state_machine.userdata.move_group_prefix = ''
@@ -66,7 +66,7 @@ class TransportPartToAgvSM(Behavior):
 		_state_machine.userdata.ref_frame = ''
 		_state_machine.userdata.bin = ''
 		_state_machine.userdata.agv1 = 'agv1'
-		_state_machine.userdata.pose_on_agv = []
+		_state_machine.userdata.part_pose = []
 
 		# Additional creation code can be added inside the following tags
 		# [MANUAL_CREATE]
@@ -87,7 +87,7 @@ class TransportPartToAgvSM(Behavior):
 										self.use_behavior(transport_part_from_bin_to_agv_1SM, 'transport_part_from_bin_to_agv_1'),
 										transitions={'finished': 'finished', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit},
-										remapping={'bin': 'bin', 'move_group_prefix': 'move_group_prefix', 'camera_topic': 'camera_topic', 'camera_frame': 'camera_frame', 'ref_frame': 'ref_frame', 'agv_id': 'agv_id', 'part_type': 'part_type', 'pose_on_agv': 'pose_on_agv'})
+										remapping={'bin': 'bin', 'move_group_prefix': 'move_group_prefix', 'camera_topic': 'camera_topic', 'camera_frame': 'camera_frame', 'ref_frame': 'ref_frame', 'agv_id': 'agv_id', 'part_type': 'part_type', 'part_pose': 'part_pose'})
 
 			# x:538 y:108
 			OperatableStateMachine.add('TransferParts',
@@ -122,7 +122,7 @@ class TransportPartToAgvSM(Behavior):
 										self.use_behavior(transport_part_from_bin_to_agv_2SM, 'transport_part_from_bin_to_agv_2'),
 										transitions={'finished': 'finished', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit},
-										remapping={'bin': 'bin', 'move_group_prefix': 'move_group_prefix', 'camera_topic': 'camera_topic', 'camera_frame': 'camera_frame', 'ref_frame': 'ref_frame', 'agv_id': 'agv_id', 'part_type': 'part_type', 'pose_on_agv': 'pose_on_agv'})
+										remapping={'bin': 'bin', 'move_group_prefix': 'move_group_prefix', 'camera_topic': 'camera_topic', 'camera_frame': 'camera_frame', 'ref_frame': 'ref_frame', 'agv_id': 'agv_id', 'part_type': 'part_type', 'part_pose': 'part_pose'})
 
 
 		return _state_machine

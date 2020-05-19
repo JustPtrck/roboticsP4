@@ -15,6 +15,7 @@ from ariac_flexbe_states.gripper_control import GripperControl
 from ariac_flexbe_states.detect_part_camera_ariac_state import DetectPartCameraAriacState
 from ariac_flexbe_states.moveit_to_joints_dyn_ariac_state import MoveitToJointsDynAriacState
 from ariac_flexbe_states.get_object_pose import GetObjectPoseState
+from ariac_flexbe_states.ComputeDropPartOffsetGraspAriacState import ComputeDropPartOffsetGraspAriacState
 # Additional imports can be added inside the following tags
 # [MANUAL_IMPORT]
 
@@ -50,7 +51,7 @@ class transport_part_from_bin_to_agv_2SM(Behavior):
 
 	def create(self):
 		# x:620 y:659, x:597 y:393
-		_state_machine = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['bin', 'move_group_prefix', 'camera_topic', 'camera_frame', 'ref_frame', 'agv_id', 'part_type', 'pose_on_agv'])
+		_state_machine = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['bin', 'move_group_prefix', 'camera_topic', 'camera_frame', 'ref_frame', 'agv_id', 'part_type', 'part_pose'])
 		_state_machine.userdata.config_name_home = 'home'
 		_state_machine.userdata.move_group_prefix = []
 		_state_machine.userdata.move_group = 'manipulator'
@@ -70,7 +71,8 @@ class transport_part_from_bin_to_agv_2SM(Behavior):
 		_state_machine.userdata.camera_topic = []
 		_state_machine.userdata.camera_frame = []
 		_state_machine.userdata.ref_frame = []
-		_state_machine.userdata.pose_on_agv = []
+		_state_machine.userdata.part_pose = []
+		_state_machine.userdata.agv_pose = []
 
 		# Additional creation code can be added inside the following tags
 		# [MANUAL_CREATE]
@@ -159,23 +161,23 @@ class transport_part_from_bin_to_agv_2SM(Behavior):
 			# x:1112 y:356
 			OperatableStateMachine.add('GetAgvPose',
 										GetObjectPoseState(object_frame='kit_tray_2', ref_frame='arm2_linear_arm_actuator'),
-										transitions={'continue': 'ComuteDorp', 'failed': 'failed'},
+										transitions={'continue': 'ComputeDrop', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'pose': 'agv_pose'})
 
 			# x:1042 y:497
 			OperatableStateMachine.add('MoveR1ToDrop',
 										MoveitToJointsDynAriacState(),
-										transitions={'reached': 'GripperDisabled', 'planning_failed': 'failed', 'control_failed': 'failed'},
+										transitions={'reached': 'GripperDisabled', 'planning_failed': 'failed', 'control_failed': 'MoveR1ToDrop'},
 										autonomy={'reached': Autonomy.Off, 'planning_failed': Autonomy.Off, 'control_failed': Autonomy.Off},
 										remapping={'move_group_prefix': 'move_group_prefix', 'move_group': 'move_group', 'action_topic': 'action_topic', 'joint_values': 'joint_values', 'joint_names': 'joint_names'})
 
-			# x:1085 y:418
-			OperatableStateMachine.add('ComuteDorp',
-										ComputeGraspAriacState(joint_names=['linear_arm_actuator_joint', 'shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint', 'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint']),
+			# x:1007 y:426
+			OperatableStateMachine.add('ComputeDrop',
+										ComputeDropPartOffsetGraspAriacState(joint_names=['linear_arm_actuator_joint', 'shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint', 'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint']),
 										transitions={'continue': 'MoveR1ToDrop', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
-										remapping={'move_group': 'move_group', 'move_group_prefix': 'move_group_prefix', 'tool_link': 'tool_link', 'pose': 'agv_pose', 'offset': 'part_offset', 'rotation': 'part_rotation', 'joint_values': 'joint_values', 'joint_names': 'joint_names'})
+										remapping={'move_group': 'move_group', 'move_group_prefix': 'move_group_prefix', 'tool_link': 'tool_link', 'part_pose': 'part_pose', 'pose': 'agv_pose', 'offset': 'part_offset', 'rotation': 'part_rotation', 'joint_values': 'joint_values', 'joint_names': 'joint_names'})
 
 
 		return _state_machine
